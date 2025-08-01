@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ESL Diagnostic Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    h1, h2 {
+      color: #2c3e50;
+    }
+    .question {
+      margin-bottom: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+    audio {
+      display: block;
+      margin-top: 10px;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>ESL Diagnostic Test (A1–B2 CEFR)</h1>
+<p>Please answer all the questions below. This test includes grammar, reading, listening, and writing. You will receive your score and CEFR level at the end, and you’ll see the questions you got wrong.</p>
+
+<form id="testForm">
+  <div id="questionsContainer"></div>
+
+  <h2>Writing Section</h2>
+  <p>Please write a short paragraph (5–8 sentences) about your last vacation or weekend.</p>
+  <textarea name="writing" placeholder="Your answer here..."></textarea>
+
+  <br><br>
+  <button type="submit">Submit Test</button>
+</form>
+
+<div id="results" class="hidden">
+  <h2>Test Results</h2>
+  <p id="score"></p>
+  <p id="level"></p>
+  <h3>Incorrect Answers</h3>
+  <ul id="wrongAnswers"></ul>
+  <h3>Writing Section</h3>
+  <p>This part should be graded manually by the teacher.</p>
+</div>
+
+<script>
+const grammarQuestions = [
+  { q: "1. She _____ to the gym every morning.", options: ["go", "goes", "going", "gone"], correct: "goes" },
+  { q: "2. I _____ seen that movie before.", options: ["have", "has", "having", "had"], correct: "have" },
+  { q: "3. They _____ at home yesterday.", options: ["was", "were", "are", "be"], correct: "were" },
+  { q: "4. If I _____ time, I will help you.", options: ["have", "had", "has", "will have"], correct: "have" },
+  { q: "5. He _____ playing football now.", options: ["is", "are", "was", "be"], correct: "is" },
+  { q: "6. This is _____ book I told you about.", options: ["a", "an", "the", "some"], correct: "the" },
+  { q: "7. I have lived here _____ five years.", options: ["since", "for", "during", "while"], correct: "for" },
+  { q: "8. We _____ dinner when he arrived.", options: ["have", "were having", "has", "had"], correct: "were having" },
+  { q: "9. What _____ you do if you won the lottery?", options: ["would", "will", "do", "did"], correct: "would" },
+  { q: "10. She’s the _____ student in the class.", options: ["good", "better", "best", "more good"], correct: "best" },
+  { q: "11. He _____ work tomorrow because it's a holiday.", options: ["doesn’t have to", "must", "has", "have"], correct: "doesn’t have to" },
+  { q: "12. There _____ a lot of people at the party.", options: ["is", "are", "was", "were"], correct: "were" },
+  { q: "13. They _____ to Paris last year.", options: ["go", "gone", "went", "going"], correct: "went" },
+  { q: "14. I don't know where she _____.", options: ["is", "are", "be", "was"], correct: "is" },
+  { q: "15. You _____ smoke in here.", options: ["can", "must", "should", "mustn't"], correct: "mustn't" },
+  { q: "16. I’ve never _____ sushi before.", options: ["eat", "ate", "eaten", "eating"], correct: "eaten" },
+  { q: "17. He said he _____ help us.", options: ["will", "can", "would", "shall"], correct: "would" },
+  { q: "18. My house is _____ than yours.", options: ["big", "bigger", "more big", "biggest"], correct: "bigger" },
+  { q: "19. She _____ English very well.", options: ["speak", "speaks", "speaking", "spoke"], correct: "speaks" },
+  { q: "20. We _____ finished our homework yet.", options: ["haven’t", "hasn’t", "don’t", "didn’t"], correct: "haven’t" },
+  { q: "21. The book was _____ interesting.", options: ["too", "enough", "so", "very"], correct: "very" },
+  { q: "22. He works _____ than me.", options: ["hard", "harder", "more hard", "hardest"], correct: "harder" },
+  { q: "23. I prefer tea _____ coffee.", options: ["than", "to", "over", "instead"], correct: "to" },
+  { q: "24. She has been here _____ Monday.", options: ["for", "since", "during", "by"], correct: "since" },
+  { q: "25. _____ you like some water?", options: ["Do", "Would", "Have", "Are"], correct: "Would" },
+];
+
+const readingQuestions = [
+  { q: "26. According to the text, what time does the train leave? (Text: 'The train leaves at 5:45 PM every day.')", options: ["5:00 PM", "6:00 PM", "5:45 PM", "4:45 PM"], correct: "5:45 PM" },
+  { q: "27. Why did John miss the meeting? (Text: 'John was sick and stayed home.')", options: ["He forgot", "He was late", "He was sick", "He didn’t care"], correct: "He was sick" },
+  { q: "28. What is the purpose of the message? (Text: 'Please remember to submit your reports by Friday.')", options: ["Reminder", "Warning", "Invitation", "Request"], correct: "Reminder" },
+  { q: "29. What did Mary do after dinner? (Text: 'After dinner, Mary washed the dishes and watched TV.')", options: ["Went out", "Watched TV", "Went to bed", "Studied"], correct: "Watched TV" },
+  { q: "30. What is the main topic? (Text: 'Polar bears live in the Arctic and are excellent swimmers.')", options: ["Swimming lessons", "Polar bears", "The Arctic", "Fish"], correct: "Polar bears" },
+];
+
+
+const listeningQuestions = [
+  { 
+    q: "31. What is her favorite food?", 
+    audio: "file:///C:/Users/user/Downloads/Q31%20(1).mp3", 
+    options: ["Pizza", "Salad", "Pasta", "Sushi"], 
+    correct: "Pizza" 
+  },
+  { 
+    q: "32. Where is the man going?", 
+    audio: "file:///C:/Users/user/Downloads/Q32.mp3", 
+    options: ["To the bank", "To school", "To the store", "To the hospital"], 
+    correct: "To the store" 
+  },
+  { 
+    q: "33. What time is the meeting?", 
+    audio: "file:///C:/Users/user/Downloads/Q33.mp3", 
+    options: ["10:30", "11:00", "12:00", "9:45"], 
+    correct: "11:00" 
+  },
+  { 
+    q: "34. What did she buy?", 
+    audio: "file:///C:/Users/user/Downloads/Q34.mp3", 
+    options: ["Shoes", "A dress", "A phone", "A book"], 
+    correct: "A book" 
+  },
+  { 
+    q: "35. How does he feel?", 
+    audio: "file:///C:/Users/user/Downloads/Q35.mp3", 
+    options: ["Happy", "Tired", "Excited", "Angry"], 
+    correct: "Tired" 
+  },
+];
+
+const allQuestions = [...grammarQuestions, ...readingQuestions, ...listeningQuestions];
+
+const container = document.getElementById("questionsContainer");
+allQuestions.forEach((q, idx) => {
+  const div = document.createElement("div");
+  div.classList.add("question");
+  div.innerHTML = `<strong>${q.q}</strong><br>` +
+    (q.audio ? `<audio controls><source src="${q.audio}" type="audio/mpeg">Your browser does not support the audio element.</audio><br>` : "") +
+    q.options.map(opt =>
+      `<label><input type="radio" name="q${idx}" value="${opt}"> ${opt}</label><br>`
+    ).join("");
+  container.appendChild(div);
+});
+
+document.getElementById("testForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  let score = 0;
+  const wrong = [];
+  allQuestions.forEach((q, i) => {
+    const userAnswer = document.querySelector(`input[name="q${i}"]:checked`);
+    if (userAnswer && userAnswer.value === q.correct) {
+      score++;
+    } else {
+      wrong.push(`${q.q} Correct answer: <strong>${q.correct}</strong>`);
+    }
+  });
+
+  const level = score >= 32 ? "B2" : score >= 26 ? "B1" : score >= 18 ? "A2" : "A1";
+
+  document.getElementById("score").innerHTML = `Your score: <strong>${score}/35</strong>`;
+  document.getElementById("level").innerHTML = `Estimated CEFR Level: <strong>${level}</strong>`;
+  document.getElementById("wrongAnswers").innerHTML = wrong.map(w => `<li>${w}</li>`).join("");
+  document.getElementById("results").classList.remove("hidden");
+  window.scrollTo(0, document.body.scrollHeight);
+});
+</script>
+
+</body>
+</html>
